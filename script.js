@@ -12,6 +12,7 @@ function gerarCronograma() {
     
     if (!inputHoras || diasSelecionados.length === 0) return alert("Preencha horas e dias!");
 
+    // Rodízio de matérias e divisão de tempo igualitária
     const matPorDia = Math.ceil(disciplinas.length / diasSelecionados.length);
     const minutosPorMat = Math.floor((inputHoras * 60) / matPorDia);
     
@@ -25,7 +26,7 @@ function gerarCronograma() {
                 ...disciplinas[matIndex],
                 tempo: minutosPorMat,
                 concluido: false,
-                anotacao: "" // Adicionamos o campo vazio por padrão
+                anotacao: "" 
             });
             matIndex++;
         }
@@ -51,10 +52,13 @@ function renderizarCronograma(agenda) {
                 ${itens.map(i => `
                     <div class="materia-item ${i.concluido ? 'checked' : ''}">
                         <div class="materia-header">
-                            <label><input type="checkbox" ${i.concluido ? 'checked' : ''} onchange="toggle('${dia}', ${i.id})"> ${i.nome}</label>
+                            <label>
+                                <input type="checkbox" ${i.concluido ? 'checked' : ''} onchange="toggle('${dia}', ${i.id})"> 
+                                ${i.nome}
+                            </label>
                             <span>${Math.floor(i.tempo/60)}h ${i.tempo%60}m</span>
                         </div>
-                        <input type="text" class="anotacao-input" placeholder="Ex: Parei no Art. 5º, aula 3..." value="${i.anotacao || ''}" onchange="salvarAnotacao('${dia}', ${i.id}, this.value)">
+                        <input type="text" class="anotacao-input" placeholder="Ex: Parei na aula 3..." value="${i.anotacao || ''}" onchange="salvarAnotacao('${dia}', ${i.id}, this.value)">
                     </div>`).join('')}
             </div>`;
     });
@@ -72,17 +76,40 @@ function toggle(dia, id) {
     renderizarCronograma(agenda);
 }
 
-// NOVA FUNÇÃO: Salva a anotação automaticamente
 function salvarAnotacao(dia, id, texto) {
     let agenda = JSON.parse(localStorage.getItem('cronogramaDados'));
     agenda[dia] = agenda[dia].map(i => i.id === id ? { ...i, anotacao: texto } : i);
     localStorage.setItem('cronogramaDados', JSON.stringify(agenda));
 }
 
-function limparCronograma() { localStorage.removeItem('cronogramaDados'); location.reload(); }
-function baixarPDF() { html2pdf().from(document.getElementById('resultado')).save('cronograma.pdf'); }
+function limparCronograma() { 
+    localStorage.removeItem('cronogramaDados'); 
+    location.reload(); 
+}
+
+function baixarPDF() { 
+    const bts = document.querySelector('.botoes-acao');
+    bts.style.display = 'none';
+    html2pdf().from(document.getElementById('resultado')).save('cronograma.pdf').then(() => bts.style.display = 'flex');
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     const salvo = localStorage.getItem('cronogramaDados');
-    if (salvo) renderizarCronograma(JSON.parse(salvo));
+    
+    if (salvo) {
+        try {
+            const dadosParseados = JSON.parse(salvo);
+            
+            // Trava de segurança: se os dados salvos estiverem num formato incompatível, reseta.
+            const primeiraChave = Object.keys(dadosParseados)[0];
+            if (primeiraChave && !Array.isArray(dadosParseados[primeiraChave])) {
+                throw new Error("Estrutura de dados antiga.");
+            }
+            
+            renderizarCronograma(dadosParseados);
+        } catch (erro) {
+            console.warn("Dados antigos detectados. Limpando para evitar erros na tela.");
+            localStorage.removeItem('cronogramaDados');
+        }
+    }
 });
