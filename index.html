@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronograma de Estudos - Vunesp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Cronograma Escrevente</h1>
+            <p>Gere seu ciclo de estudos baseado nos pesos do edital da Vunesp.</p>
+        </header>
+
+        <main>
+            <div class="card">
+                <div class="form-group">
+                    <label for="horas">Horas livres por dia:</label>
+                    <input type="number" id="horas" min="1" max="12" placeholder="Ex: 3">
+                </div>
+
+                <div class="form-group">
+                    <label>Dias de estudo na semana:</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label"><input type="checkbox" name="dias" value="Segunda"> Seg</label>
+                        <label class="checkbox-label"><input type="checkbox" name="dias" value="Terça"> Ter</label>
+                        <label class="checkbox-label"><input type="checkbox" name="dias" value="Quarta"> Qua</label>
+                        <label class="checkbox-label"><input type="checkbox" name="dias" value="Quinta"> Qui</label>
+                        <label class="checkbox-label"><input type="checkbox" name="dias" value="Sexta"> Sex</label>
+                        <label class="checkbox-label"><input type="checkbox" name="dias" value="Sábado"> Sáb</label>
+                        <label class="checkbox-label"><input type="checkbox" name="dias" value="Domingo"> Dom</label>
+                    </div>
+                </div>
+
+                <button id="btn-gerar" onclick="gerarCronograma()">Gerar Meu Cronograma</button>
+            </div>
+
+            <div id="resultado" class="resultado-container hidden">
+                <h2>Seu Ciclo Ideal</h2>
+                <div id="tabela-cronograma"></div>
+                
+                <div class="botoes-acao">
+                    <button id="btn-pdf" class="btn-secundario" onclick="baixarPDF()">Baixar PDF Grátis</button>
+                    <button id="btn-limpar" class="btn-terciario" onclick="limparCronograma()">Limpar Salvo</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
