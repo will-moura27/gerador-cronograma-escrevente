@@ -12,7 +12,6 @@ function gerarCronograma() {
     
     if (!inputHoras || diasSelecionados.length === 0) return alert("Preencha horas e dias!");
 
-    // Quantas matérias por dia? (10 matérias / dias selecionados)
     const matPorDia = Math.ceil(disciplinas.length / diasSelecionados.length);
     const minutosPorMat = Math.floor((inputHoras * 60) / matPorDia);
     
@@ -25,7 +24,8 @@ function gerarCronograma() {
             agenda[dia].push({
                 ...disciplinas[matIndex],
                 tempo: minutosPorMat,
-                concluido: false
+                concluido: false,
+                anotacao: "" // Adicionamos o campo vazio por padrão
             });
             matIndex++;
         }
@@ -50,8 +50,11 @@ function renderizarCronograma(agenda) {
                 <h3>${dia}</h3>
                 ${itens.map(i => `
                     <div class="materia-item ${i.concluido ? 'checked' : ''}">
-                        <label><input type="checkbox" ${i.concluido ? 'checked' : ''} onchange="toggle('${dia}', ${i.id})"> ${i.nome}</label>
-                        <span>${Math.floor(i.tempo/60)}h ${i.tempo%60}m</span>
+                        <div class="materia-header">
+                            <label><input type="checkbox" ${i.concluido ? 'checked' : ''} onchange="toggle('${dia}', ${i.id})"> ${i.nome}</label>
+                            <span>${Math.floor(i.tempo/60)}h ${i.tempo%60}m</span>
+                        </div>
+                        <input type="text" class="anotacao-input" placeholder="Ex: Parei no Art. 5º, aula 3..." value="${i.anotacao || ''}" onchange="salvarAnotacao('${dia}', ${i.id}, this.value)">
                     </div>`).join('')}
             </div>`;
     });
@@ -67,6 +70,13 @@ function toggle(dia, id) {
     agenda[dia] = agenda[dia].map(i => i.id === id ? { ...i, concluido: !i.concluido } : i);
     localStorage.setItem('cronogramaDados', JSON.stringify(agenda));
     renderizarCronograma(agenda);
+}
+
+// NOVA FUNÇÃO: Salva a anotação automaticamente
+function salvarAnotacao(dia, id, texto) {
+    let agenda = JSON.parse(localStorage.getItem('cronogramaDados'));
+    agenda[dia] = agenda[dia].map(i => i.id === id ? { ...i, anotacao: texto } : i);
+    localStorage.setItem('cronogramaDados', JSON.stringify(agenda));
 }
 
 function limparCronograma() { localStorage.removeItem('cronogramaDados'); location.reload(); }
