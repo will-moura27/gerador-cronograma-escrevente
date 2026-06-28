@@ -5,18 +5,26 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 body { background-color: var(--background); color: var(--text-main); display: flex; justify-content: center; padding: 2rem 1rem; }
 .container { width: 100%; max-width: 600px; }
-.card { background-color: var(--surface); padding: 2rem; border-radius: var(--radius); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 2rem; }
+.card { background-color: var(--surface); padding: 2rem; border-radius: var(--radius); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 2rem; border: 1px solid var(--border); }
 input[type="number"] { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 1rem; }
 .checkbox-group { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
 .checkbox-label { background: #f1f5f9; padding: 0.5rem 0.8rem; border-radius: 20px; cursor: pointer; font-size: 0.85rem; }
 button { width: 100%; background-color: var(--primary-color); color: white; border: none; padding: 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; }
 .resultado-container { background: var(--surface); padding: 2rem; border-radius: var(--radius); border: 1px solid var(--border); }
-.materia-item { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+
+/* Novos Estilos de Progresso */
+.dia-wrapper { margin-top: 1.5rem; }
+h3 { display: flex; justify-content: space-between; font-size: 1rem; color: var(--primary-color); border-bottom: 2px solid var(--border); padding-bottom: 0.2rem; }
+h3 small { font-size: 0.8rem; color: var(--text-muted); }
+.progress-bar-small { height: 6px; background: #e2e8f0; border-radius: 3px; margin-bottom: 0.5rem; overflow: hidden; }
+.progress-bar-small div { height: 100%; background: #3b82f6; transition: width 0.3s ease; }
+
+.materia-item { display: flex; align-items: center; justify-content: space-between; padding: 0.6rem 0; }
 .materia-item.checked .materia-nome { text-decoration: line-through; color: #94a3b8; }
 .progress-wrapper { margin-bottom: 1.5rem; }
 .progress-bar { height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; }
 #progress-fill { height: 100%; background: #10b981; transition: width 0.3s ease; }
-.botoes-acao { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
+.botoes-acao { display: flex; gap: 0.5rem; margin-top: 2rem; }
 .btn-secundario { background-color: #10b981; }
 .btn-terciario { background-color: #ef4444; }
 .hidden { display: none; }
