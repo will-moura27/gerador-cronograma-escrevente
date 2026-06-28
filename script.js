@@ -1,111 +1,69 @@
-// Base de dados com as matérias e quantidade de questões do edital
 const disciplinas = [
-    { nome: "Língua Portuguesa", questoes: 24 },
-    { nome: "Informática", questoes: 14 },
-    { nome: "Raciocínio Lógico", questoes: 10 },
-    { nome: "Direito Administrativo", questoes: 8 },
-    { nome: "Direito Processual Penal", questoes: 7 },
-    { nome: "Direito Processual Civil", questoes: 7 },
-    { nome: "Direito Constitucional", questoes: 7 },
-    { nome: "Direito Penal", questoes: 6 },
-    { nome: "Matemática", questoes: 6 },
-    { nome: "Normas da Corregedoria", questoes: 5 }
+    { id: 1, nome: "Língua Portuguesa", questoes: 24 },
+    { id: 2, nome: "Informática", questoes: 14 },
+    { id: 3, nome: "Raciocínio Lógico", questoes: 10 },
+    { id: 4, nome: "Direito Administrativo", questoes: 8 },
+    { id: 5, nome: "Direito Processual Penal", questoes: 7 },
+    { id: 6, nome: "Direito Processual Civil", questoes: 7 },
+    { id: 7, nome: "Direito Constitucional", questoes: 7 },
+    { id: 8, nome: "Direito Penal", questoes: 6 },
+    { id: 9, nome: "Matemática", questoes: 6 },
+    { id: 10, nome: "Normas da Corregedoria", questoes: 5 }
 ];
 
-const totalQuestoes = 94; 
-
-// Evento que roda assim que o site carrega para buscar dados salvos
-document.addEventListener('DOMContentLoaded', () => {
-    const cronogramaSalvo = localStorage.getItem('cronogramaVunesp');
-    
-    if (cronogramaSalvo) {
-        // Se existir algo salvo, injeta na tela e mostra a div
-        document.getElementById('tabela-cronograma').innerHTML = cronogramaSalvo;
-        document.getElementById('resultado').classList.remove('hidden');
-    }
-});
+const totalQuestoes = 94;
 
 function gerarCronograma() {
     const inputHoras = document.getElementById('horas').value;
     const checkboxes = document.querySelectorAll('input[name="dias"]:checked');
-    const diasSelecionados = checkboxes.length;
+    if (!inputHoras || checkboxes.length === 0) return alert("Preencha horas e dias!");
 
-    if (!inputHoras || inputHoras <= 0) {
-        alert("Por favor, insira um número válido de horas.");
-        return;
-    }
+    const minutosSemanais = (inputHoras * checkboxes.length) * 60;
+    const cronogramaDados = disciplinas.map(d => ({
+        id: d.id, nome: d.nome, tempo: Math.round((d.questoes / totalQuestoes) * minutosSemanais), concluido: false
+    }));
 
-    if (diasSelecionados === 0) {
-        alert("Selecione pelo menos um dia da semana para estudar.");
-        return;
-    }
-
-    const horasSemanais = inputHoras * diasSelecionados;
-    const minutosSemanais = horasSemanais * 60;
-    
-    let htmlResultado = '';
-
-    disciplinas.forEach(disciplina => {
-        const porcentagemMateria = disciplina.questoes / totalQuestoes;
-        const minutosMateria = Math.round(porcentagemMateria * minutosSemanais);
-        
-        const horasFormatadas = Math.floor(minutosMateria / 60);
-        const minutosFormatados = minutosMateria % 60;
-        
-        let tempoTexto = '';
-        if (horasFormatadas > 0) tempoTexto += `${horasFormatadas}h `;
-        if (minutosFormatados > 0) tempoTexto += `${minutosFormatados}m`;
-        if (horasFormatadas === 0 && minutosFormatados === 0) tempoTexto = '15m'; 
-
-        htmlResultado += `
-            <div class="materia-item">
-                <span class="materia-nome">${disciplina.nome}</span>
-                <span class="materia-tempo">${tempoTexto} por semana</span>
-            </div>
-        `;
-    });
-
-    // Inserir na tela
-    document.getElementById('tabela-cronograma').innerHTML = htmlResultado;
-    document.getElementById('resultado').classList.remove('hidden');
-
-    // Salvar o HTML gerado na memória do navegador
-    localStorage.setItem('cronogramaVunesp', htmlResultado);
+    localStorage.setItem('cronogramaDados', JSON.stringify(cronogramaDados));
+    renderizarCronograma(cronogramaDados);
 }
 
-// Função para apagar o cronograma da memória e da tela
+function renderizarCronograma(dados) {
+    const container = document.getElementById('tabela-cronograma');
+    container.innerHTML = dados.map(item => `
+        <div class="materia-item ${item.concluido ? 'checked' : ''}">
+            <label><input type="checkbox" ${item.concluido ? 'checked' : ''} onchange="toggleConcluido(${item.id})"> 
+            <span class="materia-nome">${item.nome}</span></label>
+            <span class="materia-tempo">${Math.floor(item.tempo/60)}h ${item.tempo%60}m</span>
+        </div>
+    `).join('');
+    
+    const concluidos = dados.filter(d => d.concluido).length;
+    const porcentagem = Math.round((concluidos / dados.length) * 100);
+    document.getElementById('progress-fill').style.width = `${porcentagem}%`;
+    document.getElementById('progress-text').innerText = `${porcentagem}% concluído`;
+    document.getElementById('resultado').classList.remove('hidden');
+}
+
+function toggleConcluido(id) {
+    let dados = JSON.parse(localStorage.getItem('cronogramaDados'));
+    dados = dados.map(d => d.id === id ? { ...d, concluido: !d.concluido } : d);
+    localStorage.setItem('cronogramaDados', JSON.stringify(dados));
+    renderizarCronograma(dados);
+}
+
 function limparCronograma() {
-    localStorage.removeItem('cronogramaVunesp');
-    document.getElementById('tabela-cronograma').innerHTML = '';
+    localStorage.removeItem('cronogramaDados');
     document.getElementById('resultado').classList.add('hidden');
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const salvo = localStorage.getItem('cronogramaDados');
+    if (salvo) renderizarCronograma(JSON.parse(salvo));
+});
+
 function baixarPDF() {
     const elemento = document.getElementById('resultado');
-    const btnPdf = document.getElementById('btn-pdf');
-    const btnLimpar = document.getElementById('btn-limpar');
-    
-    // Esconde os botões para não saírem no PDF
-    btnPdf.style.display = 'none';
-    btnLimpar.style.display = 'none';
-
-    const opcoes = {
-        margin:       [15, 15, 15, 15], 
-        filename:     'meu-cronograma-vunesp.pdf',
-        image:        { type: 'jpeg', quality: 1.0 },
-        html2canvas:  { 
-            scale: 2,
-            useCORS: true,
-            scrollY: 0,
-            windowWidth: document.documentElement.offsetWidth,
-            windowHeight: document.documentElement.offsetHeight
-        },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opcoes).from(elemento).save().then(() => {
-        // Restaura os botões
-        btnPdf.style.display = 'block';
-        btnLimpar.style.display = 'block';
-    });
+    const botoes = document.querySelector('.botoes-acao');
+    botoes.style.display = 'none';
+    html2pdf().from(elemento).save('cronograma.pdf').then(() => botoes.style.display = 'flex');
 }

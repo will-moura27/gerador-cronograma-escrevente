@@ -12,7 +12,7 @@
     <div class="container">
         <header class="header">
             <h1>Cronograma Escrevente</h1>
-            <p>Gere seu ciclo de estudos baseado nos pesos do edital da Vunesp.</p>
+            <p>Gere seu ciclo de estudos baseado nos pesos do edital.</p>
         </header>
 
         <main>
@@ -21,7 +21,6 @@
                     <label for="horas">Horas livres por dia:</label>
                     <input type="number" id="horas" min="1" max="12" placeholder="Ex: 3">
                 </div>
-
                 <div class="form-group">
                     <label>Dias de estudo na semana:</label>
                     <div class="checkbox-group">
@@ -34,22 +33,26 @@
                         <label class="checkbox-label"><input type="checkbox" name="dias" value="Domingo"> Dom</label>
                     </div>
                 </div>
-
                 <button id="btn-gerar" onclick="gerarCronograma()">Gerar Meu Cronograma</button>
             </div>
 
             <div id="resultado" class="resultado-container hidden">
                 <h2>Seu Ciclo Ideal</h2>
+                
+                <div class="progress-wrapper">
+                    <div id="progress-text">0% concluído</div>
+                    <div class="progress-bar"><div id="progress-fill" style="width: 0%"></div></div>
+                </div>
+
                 <div id="tabela-cronograma"></div>
                 
                 <div class="botoes-acao">
-                    <button id="btn-pdf" class="btn-secundario" onclick="baixarPDF()">Baixar PDF Grátis</button>
-                    <button id="btn-limpar" class="btn-terciario" onclick="limparCronograma()">Limpar Salvo</button>
+                    <button id="btn-pdf" class="btn-secundario" onclick="baixarPDF()">Baixar PDF</button>
+                    <button id="btn-limpar" class="btn-terciario" onclick="limparCronograma()">Limpar</button>
                 </div>
             </div>
         </main>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
