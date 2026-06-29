@@ -3,17 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cronograma Escrevente</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <title>Meta Ciclo</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
+        <!-- Logo do App -->
         <div class="logo-container" style="text-align: center; margin-bottom: 2rem;">
-    <img src="logo.png" alt="Meta Ciclo Logo" style="max-width: 100%; height: auto; border-radius: 8px;">
-</div>
+            <img src="logo.png" alt="Meta Ciclo Logo" style="max-width: 100%; height: auto; border-radius: 8px;">
+        </div>
+        
         <div class="card">
+            <label>Cadastrar Matérias Manualmente:</label>
+            <div class="input-group">
+                <input type="text" id="nova-materia" placeholder="Ex: Direito Constitucional">
+                <button onclick="adicionarMateria()" class="btn-add">Adicionar</button>
+            </div>
+            
+            <div class="template-section">
+                <span class="ou-divisor">OU</span>
+                <button onclick="carregarTemplateEscrevente()" class="btn-template">📚 Carregar Edital Escrevente (Vunesp)</button>
+            </div>
+
+            <div class="header-lista">
+                <label>Suas Matérias:</label>
+                <button onclick="limparTodasMaterias()" class="btn-limpar-lista">Esvaziar Lista</button>
+            </div>
+            <div id="lista-materias" class="tags-container"></div>
+
+            <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid #e2e8f0;">
+
             <label>Horas livres por dia:</label>
             <input type="number" id="horas" min="1" max="12" placeholder="Ex: 2">
             
@@ -32,8 +52,8 @@
         </div>
 
         <div id="resultado" class="resultado-container hidden">
-            <div class="progress-wrapper">
-                <div id="progress-text">0% concluído</div>
+            <div>
+                <span id="progress-text">0% concluído</span>
                 <div class="progress-bar"><div id="progress-fill" style="width: 0%"></div></div>
             </div>
             
@@ -41,7 +61,7 @@
             
             <div class="botoes-acao">
                 <button class="btn-secundario" onclick="baixarPDF()">Baixar PDF</button>
-                <button class="btn-terciario" onclick="limparCronograma()">Limpar</button>
+                <button class="btn-terciario" onclick="limparCronograma()">Recomeçar</button>
             </div>
         </div>
     </div>

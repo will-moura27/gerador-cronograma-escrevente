@@ -1,18 +1,68 @@
-const disciplinas = [
-    { id: 1, nome: "Língua Portuguesa" }, { id: 2, nome: "Informática" },
-    { id: 3, nome: "Raciocínio Lógico" }, { id: 4, nome: "Direito Administrativo" },
-    { id: 5, nome: "Direito Processual Penal" }, { id: 6, nome: "Direito Processual Civil" },
-    { id: 7, nome: "Direito Constitucional" }, { id: 8, nome: "Direito Penal" },
-    { id: 9, nome: "Matemática" }, { id: 10, nome: "Normas da Corregedoria" }
+let disciplinasBase = JSON.parse(localStorage.getItem('listaMateriasUsuario')) || [];
+
+// Template Fixo da Vunesp
+const templateEscrevente = [
+    "Língua Portuguesa", "Informática", "Raciocínio Lógico", 
+    "Direito Administrativo", "Direito Processual Penal", "Direito Processual Civil", 
+    "Direito Constitucional", "Direito Penal", "Matemática", "Normas da Corregedoria"
 ];
+
+function renderizarMaterias() {
+    const container = document.getElementById('lista-materias');
+    container.innerHTML = disciplinasBase.map((mat, index) => `
+        <div class="tag">
+            ${mat.nome}
+            <button class="tag-btn-remover" onclick="removerMateria(${index})">×</button>
+        </div>
+    `).join('');
+}
+
+function adicionarMateria() {
+    const input = document.getElementById('nova-materia');
+    const nome = input.value.trim();
+    if (nome) {
+        disciplinasBase.push({ id: Date.now() + Math.random(), nome: nome });
+        localStorage.setItem('listaMateriasUsuario', JSON.stringify(disciplinasBase));
+        input.value = '';
+        renderizarMaterias();
+    }
+}
+
+function removerMateria(index) {
+    disciplinasBase.splice(index, 1);
+    localStorage.setItem('listaMateriasUsuario', JSON.stringify(disciplinasBase));
+    renderizarMaterias();
+}
+
+function carregarTemplateEscrevente() {
+    if(disciplinasBase.length > 0) {
+        const confirma = confirm("Isso vai substituir sua lista atual pelas matérias de Escrevente. Continuar?");
+        if(!confirma) return;
+    }
+    
+    // Mapeia o array de strings para o formato de objetos que o sistema usa
+    disciplinasBase = templateEscrevente.map(nome => ({ id: Date.now() + Math.random(), nome: nome }));
+    localStorage.setItem('listaMateriasUsuario', JSON.stringify(disciplinasBase));
+    renderizarMaterias();
+}
+
+function limparTodasMaterias() {
+    if(disciplinasBase.length === 0) return;
+    if(confirm("Tem certeza que deseja apagar todas as matérias da lista?")) {
+        disciplinasBase = [];
+        localStorage.setItem('listaMateriasUsuario', JSON.stringify(disciplinasBase));
+        renderizarMaterias();
+    }
+}
 
 function gerarCronograma() {
     const inputHoras = parseInt(document.getElementById('horas').value);
     const diasSelecionados = Array.from(document.querySelectorAll('input[name="dias"]:checked')).map(cb => cb.value);
     
-    if (!inputHoras || diasSelecionados.length === 0) return alert("Preencha horas e dias!");
+    if (disciplinasBase.length === 0) return alert("Cadastre ou carregue pelo menos uma matéria!");
+    if (!inputHoras || diasSelecionados.length === 0) return alert("Preencha as horas e selecione os dias!");
 
-    const matPorDia = Math.ceil(disciplinas.length / diasSelecionados.length);
+    const matPorDia = Math.ceil(disciplinasBase.length / diasSelecionados.length);
     const minutosPorMat = Math.floor((inputHoras * 60) / matPorDia);
     
     let agenda = {};
@@ -20,9 +70,9 @@ function gerarCronograma() {
 
     diasSelecionados.forEach(dia => {
         agenda[dia] = [];
-        for (let i = 0; i < matPorDia && matIndex < disciplinas.length; i++) {
+        for (let i = 0; i < matPorDia && matIndex < disciplinasBase.length; i++) {
             agenda[dia].push({
-                ...disciplinas[matIndex],
+                ...disciplinasBase[matIndex],
                 tempo: minutosPorMat,
                 concluido: false,
                 anotacao: "" 
@@ -90,12 +140,10 @@ function baixarPDF() {
     const elemento = document.getElementById('resultado');
     const botoes = document.querySelector('.botoes-acao');
     
-    // Esconde os botões e reseta o scroll da tela
     botoes.style.display = 'none'; 
     window.scrollTo(0, 0); 
 
-    // Ajusta os inputs para ficarem com cara de "linha de caderno" no PDF
-    const inputs = elemento.querySelectorAll('input[type="text"]');
+    const inputs = elemento.querySelectorAll('input[type="text"].anotacao-input');
     inputs.forEach(input => {
         input.setAttribute('value', input.value);
         input.style.border = 'none';
@@ -106,23 +154,20 @@ function baixarPDF() {
 
     const opt = {
         margin:       10, 
-        filename:     'cronograma-vunesp.pdf',
+        filename:     'cronograma-metaciclo.pdf',
         image:        { type: 'jpeg', quality: 1 },
         html2canvas:  { 
             scale: 2,           
             scrollY: 0,
             useCORS: true 
         },
-        // Impede que a quebra de página corte uma matéria no meio
         pagebreak:    { mode: 'avoid-all' }, 
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     html2pdf().set(opt).from(elemento).save().then(() => {
-        // Devolve os botões
         botoes.style.display = 'flex';
         
-        // Devolve o estilo padrão dos inputs na tela
         inputs.forEach(input => {
             input.style.border = '1px dashed #cbd5e1';
             input.style.borderBottom = '1px dashed #cbd5e1';
@@ -132,7 +177,13 @@ function baixarPDF() {
     });
 }
 
+document.getElementById('nova-materia').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') adicionarMateria();
+});
+
 document.addEventListener('DOMContentLoaded', () => {
+    renderizarMaterias();
+    
     const salvo = localStorage.getItem('cronogramaVunesp');
     if (salvo) {
         try { 
