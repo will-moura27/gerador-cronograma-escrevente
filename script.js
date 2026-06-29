@@ -12,7 +12,6 @@ function gerarCronograma() {
     
     if (!inputHoras || diasSelecionados.length === 0) return alert("Preencha horas e dias!");
 
-    // Rodízio de matérias e divisão de tempo igualitária
     const matPorDia = Math.ceil(disciplinas.length / diasSelecionados.length);
     const minutosPorMat = Math.floor((inputHoras * 60) / matPorDia);
     
@@ -32,7 +31,7 @@ function gerarCronograma() {
         }
     });
 
-    localStorage.setItem('cronogramaDados', JSON.stringify(agenda));
+    localStorage.setItem('cronogramaVunesp', JSON.stringify(agenda));
     renderizarCronograma(agenda);
 }
 
@@ -70,46 +69,76 @@ function renderizarCronograma(agenda) {
 }
 
 function toggle(dia, id) {
-    let agenda = JSON.parse(localStorage.getItem('cronogramaDados'));
+    let agenda = JSON.parse(localStorage.getItem('cronogramaVunesp'));
     agenda[dia] = agenda[dia].map(i => i.id === id ? { ...i, concluido: !i.concluido } : i);
-    localStorage.setItem('cronogramaDados', JSON.stringify(agenda));
+    localStorage.setItem('cronogramaVunesp', JSON.stringify(agenda));
     renderizarCronograma(agenda);
 }
 
 function salvarAnotacao(dia, id, texto) {
-    let agenda = JSON.parse(localStorage.getItem('cronogramaDados'));
+    let agenda = JSON.parse(localStorage.getItem('cronogramaVunesp'));
     agenda[dia] = agenda[dia].map(i => i.id === id ? { ...i, anotacao: texto } : i);
-    localStorage.setItem('cronogramaDados', JSON.stringify(agenda));
+    localStorage.setItem('cronogramaVunesp', JSON.stringify(agenda));
 }
 
 function limparCronograma() { 
-    localStorage.removeItem('cronogramaDados'); 
+    localStorage.removeItem('cronogramaVunesp'); 
     location.reload(); 
 }
 
 function baixarPDF() { 
-    const bts = document.querySelector('.botoes-acao');
-    bts.style.display = 'none';
-    html2pdf().from(document.getElementById('resultado')).save('cronograma.pdf').then(() => bts.style.display = 'flex');
+    const elemento = document.getElementById('resultado');
+    const botoes = document.querySelector('.botoes-acao');
+    
+    // Esconde os botões e reseta o scroll da tela
+    botoes.style.display = 'none'; 
+    window.scrollTo(0, 0); 
+
+    // Ajusta os inputs para ficarem com cara de "linha de caderno" no PDF
+    const inputs = elemento.querySelectorAll('input[type="text"]');
+    inputs.forEach(input => {
+        input.setAttribute('value', input.value);
+        input.style.border = 'none';
+        input.style.borderBottom = '1px solid #cbd5e1';
+        input.style.backgroundColor = '#ffffff';
+        input.style.borderRadius = '0';
+    });
+
+    const opt = {
+        margin:       10, 
+        filename:     'cronograma-vunesp.pdf',
+        image:        { type: 'jpeg', quality: 1 },
+        html2canvas:  { 
+            scale: 2,           
+            scrollY: 0,
+            useCORS: true 
+        },
+        // Impede que a quebra de página corte uma matéria no meio
+        pagebreak:    { mode: 'avoid-all' }, 
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(elemento).save().then(() => {
+        // Devolve os botões
+        botoes.style.display = 'flex';
+        
+        // Devolve o estilo padrão dos inputs na tela
+        inputs.forEach(input => {
+            input.style.border = '1px dashed #cbd5e1';
+            input.style.borderBottom = '1px dashed #cbd5e1';
+            input.style.backgroundColor = 'transparent';
+            input.style.borderRadius = '6px';
+        });
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const salvo = localStorage.getItem('cronogramaDados');
-    
+    const salvo = localStorage.getItem('cronogramaVunesp');
     if (salvo) {
-        try {
-            const dadosParseados = JSON.parse(salvo);
-            
-            // Trava de segurança: se os dados salvos estiverem num formato incompatível, reseta.
-            const primeiraChave = Object.keys(dadosParseados)[0];
-            if (primeiraChave && !Array.isArray(dadosParseados[primeiraChave])) {
-                throw new Error("Estrutura de dados antiga.");
-            }
-            
-            renderizarCronograma(dadosParseados);
-        } catch (erro) {
-            console.warn("Dados antigos detectados. Limpando para evitar erros na tela.");
-            localStorage.removeItem('cronogramaDados');
+        try { 
+            renderizarCronograma(JSON.parse(salvo)); 
+        } catch (e) { 
+            localStorage.removeItem('cronogramaVunesp'); 
         }
     }
 });
