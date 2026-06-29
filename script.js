@@ -193,3 +193,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+// Lógica do botão de instalação PWA
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const btnInstalar = document.getElementById('btn-instalar');
+    if(btnInstalar) btnInstalar.classList.remove('hidden');
+});
+
+const btnInstalar = document.getElementById('btn-instalar');
+if(btnInstalar) {
+    btnInstalar.addEventListener('click', (e) => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                deferredPrompt = null;
+            });
+        }
+    });
+}

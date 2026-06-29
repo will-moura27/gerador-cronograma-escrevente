@@ -5,19 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meta Ciclo</title>
     <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2563eb">
-
-<script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js');
-    }
-</script>
+    <meta name="theme-color" content="#2563eb">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <!-- Logo do App -->
+        <button id="btn-instalar" class="hidden">📲 Instalar Meta Ciclo</button>
+
         <div class="logo-container" style="text-align: center; margin-bottom: 2rem;">
             <img src="logo.png" alt="Meta Ciclo Logo" style="max-width: 100%; height: auto; border-radius: 8px;">
         </div>
@@ -31,7 +26,7 @@
             
             <div class="template-section">
                 <span class="ou-divisor">OU</span>
-                <button onclick="carregarTemplateEscrevente()" class="btn-template">📚 Carregar Edital Escrevente (Vunesp)</button>
+                <button onclick="carregarTemplateEscrevente()" class="btn-template">📚 Carregar Edital Escrevente</button>
             </div>
 
             <div class="header-lista">
@@ -64,9 +59,7 @@
                 <span id="progress-text">0% concluído</span>
                 <div class="progress-bar"><div id="progress-fill" style="width: 0%"></div></div>
             </div>
-            
             <div id="tabela-cronograma"></div>
-            
             <div class="botoes-acao">
                 <button class="btn-secundario" onclick="baixarPDF()">Baixar PDF</button>
                 <button class="btn-terciario" onclick="limparCronograma()">Recomeçar</button>
@@ -74,5 +67,10 @@
         </div>
     </div>
     <script src="script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
+    </script>
 </body>
 </html>

@@ -67,3 +67,9 @@ h3 { color: #2563eb; margin-top: 1.5rem; border-bottom: 2px solid #e2e8f0; paddi
 .btn-terciario { background: #ef4444; }
 .btn-terciario:hover { background: #dc2626; }
 .hidden { display: none; }
+/* ... (mantenha todo o seu código anterior e adicione isto abaixo) */
+#btn-instalar { 
+    width: 100%; background: #2563eb; color: white; padding: 1rem; 
+    border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 1.5rem;
+}
+.hidden { display: none; }
